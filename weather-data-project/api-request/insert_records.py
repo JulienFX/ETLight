@@ -70,10 +70,21 @@ def inserted_records(conn,data) :
     except psycopg2.Error as e:
         print(f"Error inserting data into the database: {e}")
         raise
-# simulation appel d'API, on simule pour ne pas utiliser pour rien le nombre de requête limité à 100
-data = mock_fetch_data()
-# connection à la bdd
-conn = connect_to_db()
-# creation table + remplissage avec enregistrements
-create_table(conn)
-inserted_records(conn,data)
+
+def main():
+    try :
+        # simulation appel d'API, on simule pour ne pas utiliser pour rien le nombre de requête limité à 100
+        data = mock_fetch_data()
+        # connection à la bdd
+        conn = connect_to_db()
+        # creation table + remplissage avec enregistrements
+        create_table(conn)
+        inserted_records(conn,data)
+    except Exception as e:
+        print(f"An error occured during execution: {e}")
+    finally:
+        if 'conn' in locals():
+            conn.close()
+            print("Database connection closed.")
+
+main()
