@@ -38,5 +38,42 @@ def create_table(conn) :
     except psycopg2.Error as e:
         print(f"Failed to create table : {e}")
         raise
+
+def inserted_records(conn,data) :
+    print("Inserting weather data into the db ...")
+    try: 
+        weather = data['current']
+        location = data['location']
+        cursor=conn.cursor()
+        # req sql à faire suivi des valeurs brutes à insérer
+        cursor.execute("""
+            INSERT INTO dev.raw_weather_data (
+                city,
+                temperature,
+                weather_descriptions,
+                wind_speed,
+                time,
+                inserted_at,
+                utc_offset
+            ) VALUES(%s, %s, %s, %s, %s, NOW(), %s)
+        """,(
+            location['name'],
+            weather['temperature'],
+            weather['weather_descriptions'][0],
+            weather['wind_speed'],
+            location['localtime'],
+            location['utc_offset']
+        )
+        )
+        conn.commit()
+        print("Data succesfully inserted")
+    except psycopg2.Error as e:
+        print(f"Error inserting data into the database: {e}")
+        raise
+# simulation appel d'API, on simule pour ne pas utiliser pour rien le nombre de requête limité à 100
+data = mock_fetch_data()
+# connection à la bdd
 conn = connect_to_db()
+# creation table + remplissage avec enregistrements
 create_table(conn)
+inserted_records(conn,data)
